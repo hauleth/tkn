@@ -1,0 +1,3 @@
+slide <<-SLIDE
+  LoL
+SLIDE

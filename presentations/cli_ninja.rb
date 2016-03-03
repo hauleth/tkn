@@ -37,11 +37,9 @@ ______ _____  _    _ ___________ _ _ _
   EOS
 
   section 'Bash' do
-
   end
 
   section "TMux\n#{'T'.bold + 'erminal ' + 'Mul'.bold + 'tiplexer'}" do
-
     block <<-EOS
       - Run multiple 'windows'
       - Detach sessions (run them in background)

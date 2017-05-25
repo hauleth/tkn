@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
-Encoding.default_internal = "UTF-8"
+Encoding.default_internal = 'UTF-8'
 
 require 'io/console'
-require 'active_support/core_ext/string/strip'
 require 'pygments'
 
 TRANSITIONS_TIME = 0.3
@@ -22,7 +21,7 @@ def block(content)
   slide(content, :block)
 end
 
-def code(content, lexer=:ruby)
+def code(content, lexer = :ruby)
   slide(content, :code, lexer)
 end
 
@@ -37,12 +36,11 @@ end
 
 def slide(content, format, *args)
   $slides << {
-    content: content.strip_heredoc,
+    content: content,
     format:  format,
     args:    args
   }
 end
-
 
 #
 # --- ANSI Escape Sequences -------------------------------------------
@@ -73,7 +71,6 @@ end
 def b(str)
   "\e[1m#{str}\e[0m"
 end
-
 
 #
 # --- Utilities -------------------------------------------------------
@@ -124,7 +121,6 @@ def clear_slide(slide)
   print clear_screen
 end
 
-
 #
 # --- Slide Rendering -------------------------------------------------
 #
@@ -141,9 +137,9 @@ def render_center(content)
 
   ''.tap do |str|
     nlines = content.count("\n")
-    row = [1, 1 + (nrows - nlines)/2].max
+    row = [1, 1 + (nrows - nlines) / 2].max
     content.each_line.with_index do |line, i|
-      col = [1, 1 + (ncols - ansi_length(line.chomp))/2].max
+      col = [1, 1 + (ncols - ansi_length(line.chomp)) / 2].max
       str << cursor_at(row + i, col) + line
     end
   end
@@ -154,7 +150,7 @@ def render_section(title)
   nrows, ncols = winsize
   width = width(title)
 
-  rfil = [1, width - 5].max/2
+  rfil = [1, width - 5].max / 2
   lfil = [1, width - 5 - rfil].max
   fleuron = '─' * lfil + ' ❧❦☙ ' + '─' * rfil
 
@@ -163,7 +159,7 @@ end
 
 # Renders source code.
 def render_code(code, lexer)
-  render_block(Pygments.highlight(code, formatter: 'terminal256', lexer: lexer, options: {style: 'bw'}) + "\n")
+  render_block(Pygments.highlight(code, formatter: 'terminal256', lexer: lexer, options: { style: 'bw' }) + "\n")
 end
 
 # Centers the whole content as a block. That is, the format within the content
@@ -173,10 +169,10 @@ def render_block(content)
   nrows, ncols = winsize
 
   nlines = content.count("\n")
-  row = [1, 1 + (nrows - nlines)/2].max
+  row = [1, 1 + (nrows - nlines) / 2].max
 
   width = width(content)
-  col = [1, 1 + (ncols - width)/2].max
+  col = [1, 1 + (ncols - width) / 2].max
 
   content.gsub(/^/) do
     cursor_at(row, col).tap { row += 1 }
@@ -188,31 +184,30 @@ def render_image(image_path)
   set_background_image(File.expand_path(image_path))
 end
 
-
 #
 # --- Commands --------------------------------------------------------
 #
 
 def prompt(prompt)
-  nrows, _ = winsize
+  nrows, = winsize
   print cursor_at(nrows, 1), clear_line, prompt, ': '
   $stdin.gets.strip
 end
 
 def go_to(n)
   target = prompt('Go to')
-  n = target.to_i - 1 if target.length > 0
+  n = target.to_i - 1 unless target.empty?
   n
 end
 
 def search_for(n)
   target = prompt('Search for')
-  return n if target.length == 0
+  return n if target.empty?
 
-  regexp = %r{#{target}}
+  regexp = /#{target}/
   $slides.each.with_index do |slide, i|
     next if image?(slide)
-    n = i and break if ansi_strip(slide[:content]) =~ regexp
+    (n = i) && break if ansi_strip(slide[:content]) =~ regexp
   end
   n
 end
@@ -223,13 +218,13 @@ def display_status(n, total)
   status = "#{n + 1}/#{total}"
 
   row = nrows
-  col = [1, 1 + (ncols - status.length)/2].max
+  col = [1, 1 + (ncols - status.length) / 2].max
 
   print cursor_at(row, col), status
 end
 
 def hide_status
-  nrows, _ = winsize
+  nrows, = winsize
   print cursor_at(nrows, 1), clear_line
 end
 
@@ -241,7 +236,6 @@ def toggle_status(status, n, total)
   end
   !status
 end
-
 
 #
 # --- Main Loop -------------------------------------------------------
